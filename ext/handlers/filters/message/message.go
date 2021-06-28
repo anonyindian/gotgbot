@@ -58,9 +58,14 @@ func ForwardFromChatID(id int64) filters.Message {
 	}
 }
 
-func Regex(pattern string) filters.Message {
+func Regex(p string) filters.Message {
 	return func(m *gotgbot.Message) (bool, error) {
-		return regexp.MatchString(pattern, m.Text)
+		r, err := regexp.Compile(p)
+		if err != nil {
+			return false, err
+		}
+		matched := r.MatchString(m.Text)
+		return matched, nil
 	}
 }
 
