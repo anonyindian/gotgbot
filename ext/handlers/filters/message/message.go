@@ -1,6 +1,8 @@
 package message
 
 import (
+	"errors"
+	"regexp"
 	"strings"
 
 	"github.com/PaulSonOfLars/gotgbot/v2"
@@ -12,48 +14,53 @@ func All(_ *gotgbot.Message) bool {
 }
 
 func FromUserID(id int64) filters.Message {
-	return func(m *gotgbot.Message) bool {
-		return m.From.Id == id
+	return func(m *gotgbot.Message) (bool, error) {
+		if m == nil {
+			return false, errors.New("message cannot be nil")
+		}
+		return m.From.Id == id, nil
 	}
 }
 
 func FromUsername(name string) filters.Message {
-	return func(m *gotgbot.Message) bool {
-		return m.From.Username == name
+	return func(m *gotgbot.Message) (bool, error) {
+		if m == nil {
+			return false, errors.New("message cannot be nil")
+		}
+		return m.From.Username == name, nil
 	}
 }
 
 func ChatUsername(name string) filters.Message {
-	return func(m *gotgbot.Message) bool {
-		return m.Chat.Username != "" && m.Chat.Username == name
+	return func(m *gotgbot.Message) (bool, error) {
+		return m.Chat.Username != "" && m.Chat.Username == name, nil
 	}
 }
 
 func ChatID(id int64) filters.Message {
-	return func(m *gotgbot.Message) bool {
-		return m.Chat.Id == id
+	return func(m *gotgbot.Message) (bool, error) {
+		if m == nil {
+			return false, errors.New("message cannot be nil")
+		}
+		return m.Chat.Id == id, nil
 	}
 }
 
 func ForwardFromUserID(id int64) filters.Message {
-	return func(m *gotgbot.Message) bool {
-		return m.ForwardFrom.Id == id
+	return func(m *gotgbot.Message) (bool, error) {
+		return m.ForwardFrom.Id == id, nil
 	}
 }
 
 func ForwardFromChatID(id int64) filters.Message {
-	return func(m *gotgbot.Message) bool {
-		return m.ForwardFromChat.Id == id
+	return func(m *gotgbot.Message) (bool, error) {
+		return m.ForwardFromChat.Id == id, nil
 	}
 }
 
 func Regex(pattern string) filters.Message {
-	return func(m *gotgbot.Message) bool {
-		matched, err := regexp.MatchString(pattern, m.Text)
-		if err != nil {
-			return false
-		}
-		return matched
+	return func(m *gotgbot.Message) (bool, error) {
+		return regexp.MatchString(pattern, m.Text)
 	}
 }
 
@@ -62,8 +69,11 @@ func Reply(msg *gotgbot.Message) bool {
 }
 
 func ChatType(t string) filters.Message {
-	return func(m *gotgbot.Message) bool {
-		return m.Chat.Type == t
+	return func(m *gotgbot.Message) (bool, error) {
+		if m == nil {
+			return false, errors.New("message cannot be nil")
+		}
+		return m.Chat.Type == t, nil
 	}
 }
 
@@ -92,14 +102,20 @@ func Text(msg *gotgbot.Message) bool {
 }
 
 func HasPrefix(prefix string) filters.Message {
-	return func(msg *gotgbot.Message) bool {
-		return strings.HasPrefix(msg.Text, prefix)
+	return func(msg *gotgbot.Message) (bool, error) {
+		if msg == nil {
+			return false, errors.New("message cannot be nil")
+		}
+		return strings.HasPrefix(msg.Text, prefix), nil
 	}
 }
 
 func HasSuffix(suffix string) filters.Message {
-	return func(msg *gotgbot.Message) bool {
-		return strings.HasSuffix(msg.Text, suffix)
+	return func(msg *gotgbot.Message) (bool, error) {
+		if msg == nil {
+			return false, errors.New("message cannot be nil")
+		}
+		return strings.HasSuffix(msg.Text, suffix), nil
 	}
 }
 
@@ -192,13 +208,16 @@ func Entities(m *gotgbot.Message) bool {
 }
 
 func Entity(entType string) filters.Message {
-	return func(m *gotgbot.Message) bool {
+	return func(m *gotgbot.Message) (bool, error) {
+		if m == nil {
+			return false, errors.New("message cannot be nil")
+		}
 		for _, ent := range m.Entities {
 			if ent.Type == entType {
-				return true
+				return true, nil
 			}
 		}
-		return false
+		return false, nil
 	}
 }
 
@@ -207,13 +226,16 @@ func CaptionEntities(m *gotgbot.Message) bool {
 }
 
 func CaptionEntity(entType string) filters.Message {
-	return func(m *gotgbot.Message) bool {
+	return func(m *gotgbot.Message) (bool, error) {
+		if m == nil {
+			return false, errors.New("message cannot be nil")
+		}
 		for _, ent := range m.CaptionEntities {
 			if ent.Type == entType {
-				return true
+				return true, nil
 			}
 		}
-		return false
+		return false, nil
 	}
 }
 
