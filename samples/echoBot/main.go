@@ -2,23 +2,23 @@ package main
 
 import (
 	"fmt"
-	"net/http"
 	"os"
 
-	"github.com/PaulSonOfLars/gotgbot/v2"
-	"github.com/PaulSonOfLars/gotgbot/v2/ext"
-	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers"
-	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/callbackquery"
-	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters/message"
+	"github.com/anonyindian/gotgbot/v2"
+	"github.com/anonyindian/gotgbot/v2/ext"
+	"github.com/anonyindian/gotgbot/v2/ext/handlers"
+	"github.com/anonyindian/gotgbot/v2/ext/handlers/filters/callbackquery"
+	"github.com/anonyindian/gotgbot/v2/ext/handlers/filters/message"
+	"github.com/anonyindian/gotgbot/v2/request"
 )
 
 func main() {
 	// Create bot from environment value.
-	b, err := gotgbot.NewBot(os.Getenv("TOKEN"), &gotgbot.BotOpts{
-		Client:      http.Client{},
-		GetTimeout:  gotgbot.DefaultGetTimeout,
-		PostTimeout: gotgbot.DefaultPostTimeout,
+	b, err := gotgbot.NewBot("1821925172:AAFMMy_j9KCepVzEnBfZeecWxN_SLybe-iQ", &gotgbot.BotOpts{
+		GetTimeout:  request.DefaultGetTimeout,
+		PostTimeout: request.DefaultPostTimeout,
 	})
+	b.DeleteWebhook(nil)
 	if err != nil {
 		panic("failed to create new bot: " + err.Error())
 	}
