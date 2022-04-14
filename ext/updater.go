@@ -13,7 +13,7 @@ import (
 	"strconv"
 	"time"
 
-	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/anonyindian/gotgbot/v2"
 )
 
 var ErrMissingCertOrKeyFile = errors.New("missing certfile or keyfile")
@@ -113,7 +113,7 @@ func (u *Updater) StartPolling(b *gotgbot.Bot, opts *PollingOpts) error {
 
 	// Copy bot, such that we can edit values for polling
 	pollingBot := *b
-	pollingBot.GetTimeout = pollTimeout
+	pollingBot.Request.SetGetTimeout(pollTimeout)
 
 	go u.Dispatcher.Start(b)
 	go u.pollingLoop(pollingBot, dropPendingUpdates, v)
@@ -132,7 +132,7 @@ func (u *Updater) pollingLoop(b gotgbot.Bot, dropPendingUpdates bool, v url.Valu
 	var offset int64
 	for u.running {
 		// note: this bot instance uses a custom http.Client with longer timeouts
-		r, err := b.Get("getUpdates", v)
+		r, err := b.Request.Get("getUpdates", v)
 		if err != nil {
 			u.ErrorLog.Println("failed to get updates; sleeping 1s: " + err.Error())
 			time.Sleep(time.Second)

@@ -28,6 +28,7 @@ import (
 	"io"
 	urlLib "net/url" // renamed to avoid clashes with url vars
 	"strconv"
+	"github.com/anonyindian/gotgbot/v2/request"
 )
 `)
 
@@ -90,9 +91,9 @@ func generateMethodDef(d APIDescription, tgMethod MethodDescription) (string, er
 
 	// If sending data, we need to do it over POST
 	if hasData {
-		method.WriteString("\nr, err := bot.Post(\"" + tgMethod.Name + "\", v, data)")
+		method.WriteString("\nr, err := bot.Request.Post(\"" + tgMethod.Name + "\", v, data)")
 	} else {
-		method.WriteString("\nr, err := bot.Get(\"" + tgMethod.Name + "\", v)")
+		method.WriteString("\nr, err := bot.Request.Get(\"" + tgMethod.Name + "\", v)")
 	}
 
 	method.WriteString("\n	if err != nil {")
@@ -225,7 +226,7 @@ func (m MethodDescription) argsToValues(d APIDescription, defaultRetVal string) 
 	}
 
 	if hasData {
-		return "\ndata := map[string]NamedReader{}" + bd.String(), true, nil
+		return "\ndata := map[string]request.NamedReader{}" + bd.String(), true, nil
 	}
 
 	return bd.String(), false, nil
@@ -387,17 +388,17 @@ type readerBranchesData struct {
 const readerBranch = `
 if {{.GoParam}} != nil {
 	switch m := {{.GoParam}}.(type) {
-	case NamedReader:
+	case request.NamedReader:
 		v.Add("{{.Name}}", "attach://{{.Name}}")
 		data["{{.Name}}"] = m
 
 	case io.Reader:
 		v.Add("{{.Name}}", "attach://{{.Name}}")
-		data["{{.Name}}"] = NamedFile{File: m}
+		data["{{.Name}}"] = request.NamedFile{File: m}
 
 	case []byte:
 		v.Add("{{.Name}}", "attach://{{.Name}}")
-		data["{{.Name}}"] = NamedFile{File: bytes.NewReader(m)}
+		data["{{.Name}}"] = request.NamedFile{File: bytes.NewReader(m)}
 
 	default:
 		return {{.DefaultReturn}}, fmt.Errorf("unknown type for InputFile: %T",{{.GoParam}})
@@ -410,17 +411,17 @@ if {{.GoParam}} != nil {
 	case string:
 		v.Add("{{.Name}}", m)
 
-	case NamedReader:
+	case request.NamedReader:
 		v.Add("{{.Name}}", "attach://{{.Name}}")
 		data["{{.Name}}"] = m
 
 	case io.Reader:
 		v.Add("{{.Name}}", "attach://{{.Name}}")
-		data["{{.Name}}"] = NamedFile{File: m}
+		data["{{.Name}}"] = request.NamedFile{File: m}
 
 	case []byte:
 		v.Add("{{.Name}}", "attach://{{.Name}}")
-		data["{{.Name}}"] = NamedFile{File: bytes.NewReader(m)}
+		data["{{.Name}}"] = request.NamedFile{File: bytes.NewReader(m)}
 
 	default:
 		return {{.DefaultReturn}}, fmt.Errorf("unknown type for InputFile: %T",{{.GoParam}})

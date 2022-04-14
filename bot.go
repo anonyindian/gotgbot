@@ -1,8 +1,9 @@
 package gotgbot
 
 import (
-	"net/http"
 	"time"
+
+	"github.com/anonyindian/gotgbot/v2/request"
 )
 
 //go:generate go run ./scripts/generate
@@ -10,46 +11,41 @@ import (
 // Bot is the core Bot object used to send and receive messages.
 type Bot struct {
 	User
-	Token       string
-	APIURL      string
-	Client      http.Client
-	GetTimeout  time.Duration
-	PostTimeout time.Duration
+	Request request.RequestType
 }
 
 // BotOpts declares all optional parameters for the NewBot function.
 type BotOpts struct {
 	APIURL      string
-	Client      http.Client
+	Request     request.RequestType
 	GetTimeout  time.Duration
 	PostTimeout time.Duration
 }
 
 // NewBot returns a new Bot struct populated with the necessary defaults.
 func NewBot(token string, opts *BotOpts) (*Bot, error) {
-	b := Bot{
-		Token:      token,
-		GetTimeout: time.Second * 10, // 10 seconds timeout for initial GetMe request, which can be slow.
-		APIURL:     DefaultAPIURL,
-	}
+	b := Bot{}
 
-	getTimeout := DefaultGetTimeout
-	postTimeout := DefaultPostTimeout
+	getTimeout := request.DefaultGetTimeout
+	postTimeout := request.DefaultPostTimeout
+	apiUrl := request.DefaultAPIURL
 	if opts != nil {
-		b.Client = opts.Client
-		b.APIURL = opts.APIURL
-
+		b.Request = opts.Request
+		apiUrl = opts.APIURL
 		getTimeout = opts.GetTimeout
 		postTimeout = opts.PostTimeout
 	}
-
+	b.Request = &request.BuiltinHttp{
+		ApiUrl:      apiUrl,
+		BotToken:    token,
+		PostTimeout: postTimeout,
+		GetTimeout:  getTimeout,
+	}
 	u, err := b.GetMe()
 	if err != nil {
 		return nil, err
 	}
 
 	b.User = *u
-	b.GetTimeout = getTimeout
-	b.PostTimeout = postTimeout
 	return &b, nil
 }

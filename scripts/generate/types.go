@@ -26,6 +26,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+
+	"github.com/anonyindian/gotgbot/v2/request"
 )
 `)
 
@@ -395,7 +397,7 @@ func generateGenericInterfaceType(d APIDescription, name string, subtypes []Type
 
 	if name == tgTypeInputMedia {
 		bd.WriteString(fmt.Sprintf("\n// %sParams allows for uploading %s files with attachments.", name, name))
-		bd.WriteString(fmt.Sprintf("\n%sParams(string, map[string]NamedReader) ([]byte, error)", name))
+		bd.WriteString(fmt.Sprintf("\n%sParams(string, map[string]request.NamedReader) ([]byte, error)", name))
 	}
 
 	if len(commonFields) > 0 {
@@ -631,19 +633,19 @@ type interfaceMethodData struct {
 }
 
 const inputMediaParamsMethod = `
-func (v {{.Type}}) {{.ParentType}}Params(mediaName string, data map[string]NamedReader) ([]byte, error) {
+func (v {{.Type}}) {{.ParentType}}Params(mediaName string, data map[string]request.NamedReader) ([]byte, error) {
 	if v.Media != nil {
 		switch m := v.Media.(type) {
 		case string:
 			// ok, noop
 
-		case NamedReader:
+		case request.NamedReader:
 			v.Media = "attach://" + mediaName
 			data[mediaName] = m
 
 		case io.Reader:
 			v.Media = "attach://" + mediaName
-			data[mediaName] = NamedFile{File: m}
+			data[mediaName] = request.NamedFile{File: m}
 
 		default:
 			return nil, fmt.Errorf("unknown type for InputMedia: %T", v.Media)

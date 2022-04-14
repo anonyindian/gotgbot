@@ -1,6 +1,6 @@
 package filters
 
-import "github.com/PaulSonOfLars/gotgbot/v2"
+import "github.com/anonyindian/gotgbot/v2"
 
 type (
 	CallbackQuery      func(cq *gotgbot.CallbackQuery) bool

@@ -4,8 +4,8 @@ import (
 	"regexp"
 	"strings"
 
-	"github.com/PaulSonOfLars/gotgbot/v2"
-	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters"
+	"github.com/anonyindian/gotgbot/v2"
+	"github.com/anonyindian/gotgbot/v2/ext/handlers/filters"
 )
 
 func All(_ *gotgbot.Message) bool {

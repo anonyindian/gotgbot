@@ -7,6 +7,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"github.com/anonyindian/gotgbot/v2/request"
 	"io"
 	urlLib "net/url" // renamed to avoid clashes with url vars
 	"strconv"
@@ -32,7 +33,7 @@ type AddStickerToSetOpts struct {
 // https://core.telegram.org/bots/api#addstickertoset
 func (bot *Bot) AddStickerToSet(userId int64, name string, emojis string, opts *AddStickerToSetOpts) (bool, error) {
 	v := urlLib.Values{}
-	data := map[string]NamedReader{}
+	data := map[string]request.NamedReader{}
 	v.Add("user_id", strconv.FormatInt(userId, 10))
 	v.Add("name", name)
 	v.Add("emojis", emojis)
@@ -42,17 +43,17 @@ func (bot *Bot) AddStickerToSet(userId int64, name string, emojis string, opts *
 			case string:
 				v.Add("png_sticker", m)
 
-			case NamedReader:
+			case request.NamedReader:
 				v.Add("png_sticker", "attach://png_sticker")
 				data["png_sticker"] = m
 
 			case io.Reader:
 				v.Add("png_sticker", "attach://png_sticker")
-				data["png_sticker"] = NamedFile{File: m}
+				data["png_sticker"] = request.NamedFile{File: m}
 
 			case []byte:
 				v.Add("png_sticker", "attach://png_sticker")
-				data["png_sticker"] = NamedFile{File: bytes.NewReader(m)}
+				data["png_sticker"] = request.NamedFile{File: bytes.NewReader(m)}
 
 			default:
 				return false, fmt.Errorf("unknown type for InputFile: %T", opts.PngSticker)
@@ -60,17 +61,17 @@ func (bot *Bot) AddStickerToSet(userId int64, name string, emojis string, opts *
 		}
 		if opts.TgsSticker != nil {
 			switch m := opts.TgsSticker.(type) {
-			case NamedReader:
+			case request.NamedReader:
 				v.Add("tgs_sticker", "attach://tgs_sticker")
 				data["tgs_sticker"] = m
 
 			case io.Reader:
 				v.Add("tgs_sticker", "attach://tgs_sticker")
-				data["tgs_sticker"] = NamedFile{File: m}
+				data["tgs_sticker"] = request.NamedFile{File: m}
 
 			case []byte:
 				v.Add("tgs_sticker", "attach://tgs_sticker")
-				data["tgs_sticker"] = NamedFile{File: bytes.NewReader(m)}
+				data["tgs_sticker"] = request.NamedFile{File: bytes.NewReader(m)}
 
 			default:
 				return false, fmt.Errorf("unknown type for InputFile: %T", opts.TgsSticker)
@@ -78,17 +79,17 @@ func (bot *Bot) AddStickerToSet(userId int64, name string, emojis string, opts *
 		}
 		if opts.WebmSticker != nil {
 			switch m := opts.WebmSticker.(type) {
-			case NamedReader:
+			case request.NamedReader:
 				v.Add("webm_sticker", "attach://webm_sticker")
 				data["webm_sticker"] = m
 
 			case io.Reader:
 				v.Add("webm_sticker", "attach://webm_sticker")
-				data["webm_sticker"] = NamedFile{File: m}
+				data["webm_sticker"] = request.NamedFile{File: m}
 
 			case []byte:
 				v.Add("webm_sticker", "attach://webm_sticker")
-				data["webm_sticker"] = NamedFile{File: bytes.NewReader(m)}
+				data["webm_sticker"] = request.NamedFile{File: bytes.NewReader(m)}
 
 			default:
 				return false, fmt.Errorf("unknown type for InputFile: %T", opts.WebmSticker)
@@ -101,7 +102,7 @@ func (bot *Bot) AddStickerToSet(userId int64, name string, emojis string, opts *
 		v.Add("mask_position", string(bs))
 	}
 
-	r, err := bot.Post("addStickerToSet", v, data)
+	r, err := bot.Request.Post("addStickerToSet", v, data)
 	if err != nil {
 		return false, err
 	}
@@ -138,7 +139,7 @@ func (bot *Bot) AnswerCallbackQuery(callbackQueryId string, opts *AnswerCallback
 		}
 	}
 
-	r, err := bot.Get("answerCallbackQuery", v)
+	r, err := bot.Request.Get("answerCallbackQuery", v)
 	if err != nil {
 		return false, err
 	}
@@ -186,7 +187,7 @@ func (bot *Bot) AnswerInlineQuery(inlineQueryId string, results []InlineQueryRes
 		v.Add("switch_pm_parameter", opts.SwitchPmParameter)
 	}
 
-	r, err := bot.Get("answerInlineQuery", v)
+	r, err := bot.Request.Get("answerInlineQuery", v)
 	if err != nil {
 		return false, err
 	}
@@ -214,7 +215,7 @@ func (bot *Bot) AnswerPreCheckoutQuery(preCheckoutQueryId string, ok bool, opts 
 		v.Add("error_message", opts.ErrorMessage)
 	}
 
-	r, err := bot.Get("answerPreCheckoutQuery", v)
+	r, err := bot.Request.Get("answerPreCheckoutQuery", v)
 	if err != nil {
 		return false, err
 	}
@@ -251,7 +252,7 @@ func (bot *Bot) AnswerShippingQuery(shippingQueryId string, ok bool, opts *Answe
 		v.Add("error_message", opts.ErrorMessage)
 	}
 
-	r, err := bot.Get("answerShippingQuery", v)
+	r, err := bot.Request.Get("answerShippingQuery", v)
 	if err != nil {
 		return false, err
 	}
@@ -269,7 +270,7 @@ func (bot *Bot) ApproveChatJoinRequest(chatId int64, userId int64) (bool, error)
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	v.Add("user_id", strconv.FormatInt(userId, 10))
 
-	r, err := bot.Get("approveChatJoinRequest", v)
+	r, err := bot.Request.Get("approveChatJoinRequest", v)
 	if err != nil {
 		return false, err
 	}
@@ -302,7 +303,7 @@ func (bot *Bot) BanChatMember(chatId int64, userId int64, opts *BanChatMemberOpt
 		v.Add("revoke_messages", strconv.FormatBool(opts.RevokeMessages))
 	}
 
-	r, err := bot.Get("banChatMember", v)
+	r, err := bot.Request.Get("banChatMember", v)
 	if err != nil {
 		return false, err
 	}
@@ -320,7 +321,7 @@ func (bot *Bot) BanChatSenderChat(chatId int64, senderChatId int64) (bool, error
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	v.Add("sender_chat_id", strconv.FormatInt(senderChatId, 10))
 
-	r, err := bot.Get("banChatSenderChat", v)
+	r, err := bot.Request.Get("banChatSenderChat", v)
 	if err != nil {
 		return false, err
 	}
@@ -334,7 +335,7 @@ func (bot *Bot) BanChatSenderChat(chatId int64, senderChatId int64) (bool, error
 func (bot *Bot) Close() (bool, error) {
 	v := urlLib.Values{}
 
-	r, err := bot.Get("close", v)
+	r, err := bot.Request.Get("close", v)
 	if err != nil {
 		return false, err
 	}
@@ -399,7 +400,7 @@ func (bot *Bot) CopyMessage(chatId int64, fromChatId int64, messageId int64, opt
 		}
 	}
 
-	r, err := bot.Get("copyMessage", v)
+	r, err := bot.Request.Get("copyMessage", v)
 	if err != nil {
 		return nil, err
 	}
@@ -438,7 +439,7 @@ func (bot *Bot) CreateChatInviteLink(chatId int64, opts *CreateChatInviteLinkOpt
 		v.Add("creates_join_request", strconv.FormatBool(opts.CreatesJoinRequest))
 	}
 
-	r, err := bot.Get("createChatInviteLink", v)
+	r, err := bot.Request.Get("createChatInviteLink", v)
 	if err != nil {
 		return nil, err
 	}
@@ -470,7 +471,7 @@ type CreateNewStickerSetOpts struct {
 // https://core.telegram.org/bots/api#createnewstickerset
 func (bot *Bot) CreateNewStickerSet(userId int64, name string, title string, emojis string, opts *CreateNewStickerSetOpts) (bool, error) {
 	v := urlLib.Values{}
-	data := map[string]NamedReader{}
+	data := map[string]request.NamedReader{}
 	v.Add("user_id", strconv.FormatInt(userId, 10))
 	v.Add("name", name)
 	v.Add("title", title)
@@ -481,17 +482,17 @@ func (bot *Bot) CreateNewStickerSet(userId int64, name string, title string, emo
 			case string:
 				v.Add("png_sticker", m)
 
-			case NamedReader:
+			case request.NamedReader:
 				v.Add("png_sticker", "attach://png_sticker")
 				data["png_sticker"] = m
 
 			case io.Reader:
 				v.Add("png_sticker", "attach://png_sticker")
-				data["png_sticker"] = NamedFile{File: m}
+				data["png_sticker"] = request.NamedFile{File: m}
 
 			case []byte:
 				v.Add("png_sticker", "attach://png_sticker")
-				data["png_sticker"] = NamedFile{File: bytes.NewReader(m)}
+				data["png_sticker"] = request.NamedFile{File: bytes.NewReader(m)}
 
 			default:
 				return false, fmt.Errorf("unknown type for InputFile: %T", opts.PngSticker)
@@ -499,17 +500,17 @@ func (bot *Bot) CreateNewStickerSet(userId int64, name string, title string, emo
 		}
 		if opts.TgsSticker != nil {
 			switch m := opts.TgsSticker.(type) {
-			case NamedReader:
+			case request.NamedReader:
 				v.Add("tgs_sticker", "attach://tgs_sticker")
 				data["tgs_sticker"] = m
 
 			case io.Reader:
 				v.Add("tgs_sticker", "attach://tgs_sticker")
-				data["tgs_sticker"] = NamedFile{File: m}
+				data["tgs_sticker"] = request.NamedFile{File: m}
 
 			case []byte:
 				v.Add("tgs_sticker", "attach://tgs_sticker")
-				data["tgs_sticker"] = NamedFile{File: bytes.NewReader(m)}
+				data["tgs_sticker"] = request.NamedFile{File: bytes.NewReader(m)}
 
 			default:
 				return false, fmt.Errorf("unknown type for InputFile: %T", opts.TgsSticker)
@@ -517,17 +518,17 @@ func (bot *Bot) CreateNewStickerSet(userId int64, name string, title string, emo
 		}
 		if opts.WebmSticker != nil {
 			switch m := opts.WebmSticker.(type) {
-			case NamedReader:
+			case request.NamedReader:
 				v.Add("webm_sticker", "attach://webm_sticker")
 				data["webm_sticker"] = m
 
 			case io.Reader:
 				v.Add("webm_sticker", "attach://webm_sticker")
-				data["webm_sticker"] = NamedFile{File: m}
+				data["webm_sticker"] = request.NamedFile{File: m}
 
 			case []byte:
 				v.Add("webm_sticker", "attach://webm_sticker")
-				data["webm_sticker"] = NamedFile{File: bytes.NewReader(m)}
+				data["webm_sticker"] = request.NamedFile{File: bytes.NewReader(m)}
 
 			default:
 				return false, fmt.Errorf("unknown type for InputFile: %T", opts.WebmSticker)
@@ -541,7 +542,7 @@ func (bot *Bot) CreateNewStickerSet(userId int64, name string, title string, emo
 		v.Add("mask_position", string(bs))
 	}
 
-	r, err := bot.Post("createNewStickerSet", v, data)
+	r, err := bot.Request.Post("createNewStickerSet", v, data)
 	if err != nil {
 		return false, err
 	}
@@ -559,7 +560,7 @@ func (bot *Bot) DeclineChatJoinRequest(chatId int64, userId int64) (bool, error)
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	v.Add("user_id", strconv.FormatInt(userId, 10))
 
-	r, err := bot.Get("declineChatJoinRequest", v)
+	r, err := bot.Request.Get("declineChatJoinRequest", v)
 	if err != nil {
 		return false, err
 	}
@@ -575,7 +576,7 @@ func (bot *Bot) DeleteChatPhoto(chatId int64) (bool, error) {
 	v := urlLib.Values{}
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 
-	r, err := bot.Get("deleteChatPhoto", v)
+	r, err := bot.Request.Get("deleteChatPhoto", v)
 	if err != nil {
 		return false, err
 	}
@@ -591,7 +592,7 @@ func (bot *Bot) DeleteChatStickerSet(chatId int64) (bool, error) {
 	v := urlLib.Values{}
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 
-	r, err := bot.Get("deleteChatStickerSet", v)
+	r, err := bot.Request.Get("deleteChatStickerSet", v)
 	if err != nil {
 		return false, err
 	}
@@ -616,7 +617,7 @@ func (bot *Bot) DeleteMessage(chatId int64, messageId int64) (bool, error) {
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	v.Add("message_id", strconv.FormatInt(messageId, 10))
 
-	r, err := bot.Get("deleteMessage", v)
+	r, err := bot.Request.Get("deleteMessage", v)
 	if err != nil {
 		return false, err
 	}
@@ -647,7 +648,7 @@ func (bot *Bot) DeleteMyCommands(opts *DeleteMyCommandsOpts) (bool, error) {
 		v.Add("language_code", opts.LanguageCode)
 	}
 
-	r, err := bot.Get("deleteMyCommands", v)
+	r, err := bot.Request.Get("deleteMyCommands", v)
 	if err != nil {
 		return false, err
 	}
@@ -663,7 +664,7 @@ func (bot *Bot) DeleteStickerFromSet(sticker string) (bool, error) {
 	v := urlLib.Values{}
 	v.Add("sticker", sticker)
 
-	r, err := bot.Get("deleteStickerFromSet", v)
+	r, err := bot.Request.Get("deleteStickerFromSet", v)
 	if err != nil {
 		return false, err
 	}
@@ -687,7 +688,7 @@ func (bot *Bot) DeleteWebhook(opts *DeleteWebhookOpts) (bool, error) {
 		v.Add("drop_pending_updates", strconv.FormatBool(opts.DropPendingUpdates))
 	}
 
-	r, err := bot.Get("deleteWebhook", v)
+	r, err := bot.Request.Get("deleteWebhook", v)
 	if err != nil {
 		return false, err
 	}
@@ -728,7 +729,7 @@ func (bot *Bot) EditChatInviteLink(chatId int64, inviteLink string, opts *EditCh
 		v.Add("creates_join_request", strconv.FormatBool(opts.CreatesJoinRequest))
 	}
 
-	r, err := bot.Get("editChatInviteLink", v)
+	r, err := bot.Request.Get("editChatInviteLink", v)
 	if err != nil {
 		return nil, err
 	}
@@ -784,7 +785,7 @@ func (bot *Bot) EditMessageCaption(opts *EditMessageCaptionOpts) (*Message, bool
 		v.Add("reply_markup", string(bs))
 	}
 
-	r, err := bot.Get("editMessageCaption", v)
+	r, err := bot.Request.Get("editMessageCaption", v)
 	if err != nil {
 		return nil, false, err
 	}
@@ -852,7 +853,7 @@ func (bot *Bot) EditMessageLiveLocation(latitude float64, longitude float64, opt
 		v.Add("reply_markup", string(bs))
 	}
 
-	r, err := bot.Get("editMessageLiveLocation", v)
+	r, err := bot.Request.Get("editMessageLiveLocation", v)
 	if err != nil {
 		return nil, false, err
 	}
@@ -887,7 +888,7 @@ type EditMessageMediaOpts struct {
 // https://core.telegram.org/bots/api#editmessagemedia
 func (bot *Bot) EditMessageMedia(media InputMedia, opts *EditMessageMediaOpts) (*Message, bool, error) {
 	v := urlLib.Values{}
-	data := map[string]NamedReader{}
+	data := map[string]request.NamedReader{}
 	inputMediaBs, err := media.InputMediaParams("media", data)
 	if err != nil {
 		return nil, false, fmt.Errorf("failed to marshal field media: %w", err)
@@ -908,7 +909,7 @@ func (bot *Bot) EditMessageMedia(media InputMedia, opts *EditMessageMediaOpts) (
 		v.Add("reply_markup", string(bs))
 	}
 
-	r, err := bot.Post("editMessageMedia", v, data)
+	r, err := bot.Request.Post("editMessageMedia", v, data)
 	if err != nil {
 		return nil, false, err
 	}
@@ -957,7 +958,7 @@ func (bot *Bot) EditMessageReplyMarkup(opts *EditMessageReplyMarkupOpts) (*Messa
 		v.Add("reply_markup", string(bs))
 	}
 
-	r, err := bot.Get("editMessageReplyMarkup", v)
+	r, err := bot.Request.Get("editMessageReplyMarkup", v)
 	if err != nil {
 		return nil, false, err
 	}
@@ -1023,7 +1024,7 @@ func (bot *Bot) EditMessageText(text string, opts *EditMessageTextOpts) (*Messag
 		v.Add("reply_markup", string(bs))
 	}
 
-	r, err := bot.Get("editMessageText", v)
+	r, err := bot.Request.Get("editMessageText", v)
 	if err != nil {
 		return nil, false, err
 	}
@@ -1047,7 +1048,7 @@ func (bot *Bot) ExportChatInviteLink(chatId int64) (string, error) {
 	v := urlLib.Values{}
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 
-	r, err := bot.Get("exportChatInviteLink", v)
+	r, err := bot.Request.Get("exportChatInviteLink", v)
 	if err != nil {
 		return "", err
 	}
@@ -1080,7 +1081,7 @@ func (bot *Bot) ForwardMessage(chatId int64, fromChatId int64, messageId int64, 
 		v.Add("protect_content", strconv.FormatBool(opts.ProtectContent))
 	}
 
-	r, err := bot.Get("forwardMessage", v)
+	r, err := bot.Request.Get("forwardMessage", v)
 	if err != nil {
 		return nil, err
 	}
@@ -1096,7 +1097,7 @@ func (bot *Bot) GetChat(chatId int64) (*Chat, error) {
 	v := urlLib.Values{}
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 
-	r, err := bot.Get("getChat", v)
+	r, err := bot.Request.Get("getChat", v)
 	if err != nil {
 		return nil, err
 	}
@@ -1112,7 +1113,7 @@ func (bot *Bot) GetChatAdministrators(chatId int64) ([]ChatMember, error) {
 	v := urlLib.Values{}
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 
-	r, err := bot.Get("getChatAdministrators", v)
+	r, err := bot.Request.Get("getChatAdministrators", v)
 	if err != nil {
 		return nil, err
 	}
@@ -1129,7 +1130,7 @@ func (bot *Bot) GetChatMember(chatId int64, userId int64) (ChatMember, error) {
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	v.Add("user_id", strconv.FormatInt(userId, 10))
 
-	r, err := bot.Get("getChatMember", v)
+	r, err := bot.Request.Get("getChatMember", v)
 	if err != nil {
 		return nil, err
 	}
@@ -1144,7 +1145,7 @@ func (bot *Bot) GetChatMemberCount(chatId int64) (int64, error) {
 	v := urlLib.Values{}
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 
-	r, err := bot.Get("getChatMemberCount", v)
+	r, err := bot.Request.Get("getChatMemberCount", v)
 	if err != nil {
 		return 0, err
 	}
@@ -1161,7 +1162,7 @@ func (bot *Bot) GetFile(fileId string) (*File, error) {
 	v := urlLib.Values{}
 	v.Add("file_id", fileId)
 
-	r, err := bot.Get("getFile", v)
+	r, err := bot.Request.Get("getFile", v)
 	if err != nil {
 		return nil, err
 	}
@@ -1197,7 +1198,7 @@ func (bot *Bot) GetGameHighScores(userId int64, opts *GetGameHighScoresOpts) ([]
 		v.Add("inline_message_id", opts.InlineMessageId)
 	}
 
-	r, err := bot.Get("getGameHighScores", v)
+	r, err := bot.Request.Get("getGameHighScores", v)
 	if err != nil {
 		return nil, err
 	}
@@ -1211,7 +1212,7 @@ func (bot *Bot) GetGameHighScores(userId int64, opts *GetGameHighScoresOpts) ([]
 func (bot *Bot) GetMe() (*User, error) {
 	v := urlLib.Values{}
 
-	r, err := bot.Get("getMe", v)
+	r, err := bot.Request.Get("getMe", v)
 	if err != nil {
 		return nil, err
 	}
@@ -1242,7 +1243,7 @@ func (bot *Bot) GetMyCommands(opts *GetMyCommandsOpts) ([]BotCommand, error) {
 		v.Add("language_code", opts.LanguageCode)
 	}
 
-	r, err := bot.Get("getMyCommands", v)
+	r, err := bot.Request.Get("getMyCommands", v)
 	if err != nil {
 		return nil, err
 	}
@@ -1258,7 +1259,7 @@ func (bot *Bot) GetStickerSet(name string) (*StickerSet, error) {
 	v := urlLib.Values{}
 	v.Add("name", name)
 
-	r, err := bot.Get("getStickerSet", v)
+	r, err := bot.Request.Get("getStickerSet", v)
 	if err != nil {
 		return nil, err
 	}
@@ -1303,7 +1304,7 @@ func (bot *Bot) GetUpdates(opts *GetUpdatesOpts) ([]Update, error) {
 		}
 	}
 
-	r, err := bot.Get("getUpdates", v)
+	r, err := bot.Request.Get("getUpdates", v)
 	if err != nil {
 		return nil, err
 	}
@@ -1336,7 +1337,7 @@ func (bot *Bot) GetUserProfilePhotos(userId int64, opts *GetUserProfilePhotosOpt
 		}
 	}
 
-	r, err := bot.Get("getUserProfilePhotos", v)
+	r, err := bot.Request.Get("getUserProfilePhotos", v)
 	if err != nil {
 		return nil, err
 	}
@@ -1350,7 +1351,7 @@ func (bot *Bot) GetUserProfilePhotos(userId int64, opts *GetUserProfilePhotosOpt
 func (bot *Bot) GetWebhookInfo() (*WebhookInfo, error) {
 	v := urlLib.Values{}
 
-	r, err := bot.Get("getWebhookInfo", v)
+	r, err := bot.Request.Get("getWebhookInfo", v)
 	if err != nil {
 		return nil, err
 	}
@@ -1366,7 +1367,7 @@ func (bot *Bot) LeaveChat(chatId int64) (bool, error) {
 	v := urlLib.Values{}
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 
-	r, err := bot.Get("leaveChat", v)
+	r, err := bot.Request.Get("leaveChat", v)
 	if err != nil {
 		return false, err
 	}
@@ -1380,7 +1381,7 @@ func (bot *Bot) LeaveChat(chatId int64) (bool, error) {
 func (bot *Bot) LogOut() (bool, error) {
 	v := urlLib.Values{}
 
-	r, err := bot.Get("logOut", v)
+	r, err := bot.Request.Get("logOut", v)
 	if err != nil {
 		return false, err
 	}
@@ -1408,7 +1409,7 @@ func (bot *Bot) PinChatMessage(chatId int64, messageId int64, opts *PinChatMessa
 		v.Add("disable_notification", strconv.FormatBool(opts.DisableNotification))
 	}
 
-	r, err := bot.Get("pinChatMessage", v)
+	r, err := bot.Request.Get("pinChatMessage", v)
 	if err != nil {
 		return false, err
 	}
@@ -1466,7 +1467,7 @@ func (bot *Bot) PromoteChatMember(chatId int64, userId int64, opts *PromoteChatM
 		v.Add("can_pin_messages", strconv.FormatBool(opts.CanPinMessages))
 	}
 
-	r, err := bot.Get("promoteChatMember", v)
+	r, err := bot.Request.Get("promoteChatMember", v)
 	if err != nil {
 		return false, err
 	}
@@ -1502,7 +1503,7 @@ func (bot *Bot) RestrictChatMember(chatId int64, userId int64, permissions ChatP
 		}
 	}
 
-	r, err := bot.Get("restrictChatMember", v)
+	r, err := bot.Request.Get("restrictChatMember", v)
 	if err != nil {
 		return false, err
 	}
@@ -1520,7 +1521,7 @@ func (bot *Bot) RevokeChatInviteLink(chatId int64, inviteLink string) (*ChatInvi
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	v.Add("invite_link", inviteLink)
 
-	r, err := bot.Get("revokeChatInviteLink", v)
+	r, err := bot.Request.Get("revokeChatInviteLink", v)
 	if err != nil {
 		return nil, err
 	}
@@ -1564,24 +1565,24 @@ type SendAnimationOpts struct {
 // https://core.telegram.org/bots/api#sendanimation
 func (bot *Bot) SendAnimation(chatId int64, animation InputFile, opts *SendAnimationOpts) (*Message, error) {
 	v := urlLib.Values{}
-	data := map[string]NamedReader{}
+	data := map[string]request.NamedReader{}
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	if animation != nil {
 		switch m := animation.(type) {
 		case string:
 			v.Add("animation", m)
 
-		case NamedReader:
+		case request.NamedReader:
 			v.Add("animation", "attach://animation")
 			data["animation"] = m
 
 		case io.Reader:
 			v.Add("animation", "attach://animation")
-			data["animation"] = NamedFile{File: m}
+			data["animation"] = request.NamedFile{File: m}
 
 		case []byte:
 			v.Add("animation", "attach://animation")
-			data["animation"] = NamedFile{File: bytes.NewReader(m)}
+			data["animation"] = request.NamedFile{File: bytes.NewReader(m)}
 
 		default:
 			return nil, fmt.Errorf("unknown type for InputFile: %T", animation)
@@ -1602,17 +1603,17 @@ func (bot *Bot) SendAnimation(chatId int64, animation InputFile, opts *SendAnima
 			case string:
 				v.Add("thumb", m)
 
-			case NamedReader:
+			case request.NamedReader:
 				v.Add("thumb", "attach://thumb")
 				data["thumb"] = m
 
 			case io.Reader:
 				v.Add("thumb", "attach://thumb")
-				data["thumb"] = NamedFile{File: m}
+				data["thumb"] = request.NamedFile{File: m}
 
 			case []byte:
 				v.Add("thumb", "attach://thumb")
-				data["thumb"] = NamedFile{File: bytes.NewReader(m)}
+				data["thumb"] = request.NamedFile{File: bytes.NewReader(m)}
 
 			default:
 				return nil, fmt.Errorf("unknown type for InputFile: %T", opts.Thumb)
@@ -1642,7 +1643,7 @@ func (bot *Bot) SendAnimation(chatId int64, animation InputFile, opts *SendAnima
 		}
 	}
 
-	r, err := bot.Post("sendAnimation", v, data)
+	r, err := bot.Request.Post("sendAnimation", v, data)
 	if err != nil {
 		return nil, err
 	}
@@ -1687,24 +1688,24 @@ type SendAudioOpts struct {
 // https://core.telegram.org/bots/api#sendaudio
 func (bot *Bot) SendAudio(chatId int64, audio InputFile, opts *SendAudioOpts) (*Message, error) {
 	v := urlLib.Values{}
-	data := map[string]NamedReader{}
+	data := map[string]request.NamedReader{}
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	if audio != nil {
 		switch m := audio.(type) {
 		case string:
 			v.Add("audio", m)
 
-		case NamedReader:
+		case request.NamedReader:
 			v.Add("audio", "attach://audio")
 			data["audio"] = m
 
 		case io.Reader:
 			v.Add("audio", "attach://audio")
-			data["audio"] = NamedFile{File: m}
+			data["audio"] = request.NamedFile{File: m}
 
 		case []byte:
 			v.Add("audio", "attach://audio")
-			data["audio"] = NamedFile{File: bytes.NewReader(m)}
+			data["audio"] = request.NamedFile{File: bytes.NewReader(m)}
 
 		default:
 			return nil, fmt.Errorf("unknown type for InputFile: %T", audio)
@@ -1730,17 +1731,17 @@ func (bot *Bot) SendAudio(chatId int64, audio InputFile, opts *SendAudioOpts) (*
 			case string:
 				v.Add("thumb", m)
 
-			case NamedReader:
+			case request.NamedReader:
 				v.Add("thumb", "attach://thumb")
 				data["thumb"] = m
 
 			case io.Reader:
 				v.Add("thumb", "attach://thumb")
-				data["thumb"] = NamedFile{File: m}
+				data["thumb"] = request.NamedFile{File: m}
 
 			case []byte:
 				v.Add("thumb", "attach://thumb")
-				data["thumb"] = NamedFile{File: bytes.NewReader(m)}
+				data["thumb"] = request.NamedFile{File: bytes.NewReader(m)}
 
 			default:
 				return nil, fmt.Errorf("unknown type for InputFile: %T", opts.Thumb)
@@ -1761,7 +1762,7 @@ func (bot *Bot) SendAudio(chatId int64, audio InputFile, opts *SendAudioOpts) (*
 		}
 	}
 
-	r, err := bot.Post("sendAudio", v, data)
+	r, err := bot.Request.Post("sendAudio", v, data)
 	if err != nil {
 		return nil, err
 	}
@@ -1780,7 +1781,7 @@ func (bot *Bot) SendChatAction(chatId int64, action string) (bool, error) {
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	v.Add("action", action)
 
-	r, err := bot.Get("sendChatAction", v)
+	r, err := bot.Request.Get("sendChatAction", v)
 	if err != nil {
 		return false, err
 	}
@@ -1836,7 +1837,7 @@ func (bot *Bot) SendContact(chatId int64, phoneNumber string, firstName string, 
 		}
 	}
 
-	r, err := bot.Get("sendContact", v)
+	r, err := bot.Request.Get("sendContact", v)
 	if err != nil {
 		return nil, err
 	}
@@ -1885,7 +1886,7 @@ func (bot *Bot) SendDice(chatId int64, opts *SendDiceOpts) (*Message, error) {
 		}
 	}
 
-	r, err := bot.Get("sendDice", v)
+	r, err := bot.Request.Get("sendDice", v)
 	if err != nil {
 		return nil, err
 	}
@@ -1925,24 +1926,24 @@ type SendDocumentOpts struct {
 // https://core.telegram.org/bots/api#senddocument
 func (bot *Bot) SendDocument(chatId int64, document InputFile, opts *SendDocumentOpts) (*Message, error) {
 	v := urlLib.Values{}
-	data := map[string]NamedReader{}
+	data := map[string]request.NamedReader{}
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	if document != nil {
 		switch m := document.(type) {
 		case string:
 			v.Add("document", m)
 
-		case NamedReader:
+		case request.NamedReader:
 			v.Add("document", "attach://document")
 			data["document"] = m
 
 		case io.Reader:
 			v.Add("document", "attach://document")
-			data["document"] = NamedFile{File: m}
+			data["document"] = request.NamedFile{File: m}
 
 		case []byte:
 			v.Add("document", "attach://document")
-			data["document"] = NamedFile{File: bytes.NewReader(m)}
+			data["document"] = request.NamedFile{File: bytes.NewReader(m)}
 
 		default:
 			return nil, fmt.Errorf("unknown type for InputFile: %T", document)
@@ -1954,17 +1955,17 @@ func (bot *Bot) SendDocument(chatId int64, document InputFile, opts *SendDocumen
 			case string:
 				v.Add("thumb", m)
 
-			case NamedReader:
+			case request.NamedReader:
 				v.Add("thumb", "attach://thumb")
 				data["thumb"] = m
 
 			case io.Reader:
 				v.Add("thumb", "attach://thumb")
-				data["thumb"] = NamedFile{File: m}
+				data["thumb"] = request.NamedFile{File: m}
 
 			case []byte:
 				v.Add("thumb", "attach://thumb")
-				data["thumb"] = NamedFile{File: bytes.NewReader(m)}
+				data["thumb"] = request.NamedFile{File: bytes.NewReader(m)}
 
 			default:
 				return nil, fmt.Errorf("unknown type for InputFile: %T", opts.Thumb)
@@ -1995,7 +1996,7 @@ func (bot *Bot) SendDocument(chatId int64, document InputFile, opts *SendDocumen
 		}
 	}
 
-	r, err := bot.Post("sendDocument", v, data)
+	r, err := bot.Request.Post("sendDocument", v, data)
 	if err != nil {
 		return nil, err
 	}
@@ -2041,7 +2042,7 @@ func (bot *Bot) SendGame(chatId int64, gameShortName string, opts *SendGameOpts)
 		v.Add("reply_markup", string(bs))
 	}
 
-	r, err := bot.Get("sendGame", v)
+	r, err := bot.Request.Get("sendGame", v)
 	if err != nil {
 		return nil, err
 	}
@@ -2162,7 +2163,7 @@ func (bot *Bot) SendInvoice(chatId int64, title string, description string, payl
 		v.Add("reply_markup", string(bs))
 	}
 
-	r, err := bot.Get("sendInvoice", v)
+	r, err := bot.Request.Get("sendInvoice", v)
 	if err != nil {
 		return nil, err
 	}
@@ -2232,7 +2233,7 @@ func (bot *Bot) SendLocation(chatId int64, latitude float64, longitude float64, 
 		}
 	}
 
-	r, err := bot.Get("sendLocation", v)
+	r, err := bot.Request.Get("sendLocation", v)
 	if err != nil {
 		return nil, err
 	}
@@ -2260,7 +2261,7 @@ type SendMediaGroupOpts struct {
 // https://core.telegram.org/bots/api#sendmediagroup
 func (bot *Bot) SendMediaGroup(chatId int64, media []InputMedia, opts *SendMediaGroupOpts) ([]Message, error) {
 	v := urlLib.Values{}
-	data := map[string]NamedReader{}
+	data := map[string]request.NamedReader{}
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	if media != nil {
 		var rawList []json.RawMessage
@@ -2286,7 +2287,7 @@ func (bot *Bot) SendMediaGroup(chatId int64, media []InputMedia, opts *SendMedia
 		v.Add("allow_sending_without_reply", strconv.FormatBool(opts.AllowSendingWithoutReply))
 	}
 
-	r, err := bot.Post("sendMediaGroup", v, data)
+	r, err := bot.Request.Post("sendMediaGroup", v, data)
 	if err != nil {
 		return nil, err
 	}
@@ -2349,7 +2350,7 @@ func (bot *Bot) SendMessage(chatId int64, text string, opts *SendMessageOpts) (*
 		}
 	}
 
-	r, err := bot.Get("sendMessage", v)
+	r, err := bot.Request.Get("sendMessage", v)
 	if err != nil {
 		return nil, err
 	}
@@ -2385,24 +2386,24 @@ type SendPhotoOpts struct {
 // https://core.telegram.org/bots/api#sendphoto
 func (bot *Bot) SendPhoto(chatId int64, photo InputFile, opts *SendPhotoOpts) (*Message, error) {
 	v := urlLib.Values{}
-	data := map[string]NamedReader{}
+	data := map[string]request.NamedReader{}
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	if photo != nil {
 		switch m := photo.(type) {
 		case string:
 			v.Add("photo", m)
 
-		case NamedReader:
+		case request.NamedReader:
 			v.Add("photo", "attach://photo")
 			data["photo"] = m
 
 		case io.Reader:
 			v.Add("photo", "attach://photo")
-			data["photo"] = NamedFile{File: m}
+			data["photo"] = request.NamedFile{File: m}
 
 		case []byte:
 			v.Add("photo", "attach://photo")
-			data["photo"] = NamedFile{File: bytes.NewReader(m)}
+			data["photo"] = request.NamedFile{File: bytes.NewReader(m)}
 
 		default:
 			return nil, fmt.Errorf("unknown type for InputFile: %T", photo)
@@ -2433,7 +2434,7 @@ func (bot *Bot) SendPhoto(chatId int64, photo InputFile, opts *SendPhotoOpts) (*
 		}
 	}
 
-	r, err := bot.Post("sendPhoto", v, data)
+	r, err := bot.Request.Post("sendPhoto", v, data)
 	if err != nil {
 		return nil, err
 	}
@@ -2532,7 +2533,7 @@ func (bot *Bot) SendPoll(chatId int64, question string, options []string, opts *
 		}
 	}
 
-	r, err := bot.Get("sendPoll", v)
+	r, err := bot.Request.Get("sendPoll", v)
 	if err != nil {
 		return nil, err
 	}
@@ -2562,24 +2563,24 @@ type SendStickerOpts struct {
 // https://core.telegram.org/bots/api#sendsticker
 func (bot *Bot) SendSticker(chatId int64, sticker InputFile, opts *SendStickerOpts) (*Message, error) {
 	v := urlLib.Values{}
-	data := map[string]NamedReader{}
+	data := map[string]request.NamedReader{}
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	if sticker != nil {
 		switch m := sticker.(type) {
 		case string:
 			v.Add("sticker", m)
 
-		case NamedReader:
+		case request.NamedReader:
 			v.Add("sticker", "attach://sticker")
 			data["sticker"] = m
 
 		case io.Reader:
 			v.Add("sticker", "attach://sticker")
-			data["sticker"] = NamedFile{File: m}
+			data["sticker"] = request.NamedFile{File: m}
 
 		case []byte:
 			v.Add("sticker", "attach://sticker")
-			data["sticker"] = NamedFile{File: bytes.NewReader(m)}
+			data["sticker"] = request.NamedFile{File: bytes.NewReader(m)}
 
 		default:
 			return nil, fmt.Errorf("unknown type for InputFile: %T", sticker)
@@ -2601,7 +2602,7 @@ func (bot *Bot) SendSticker(chatId int64, sticker InputFile, opts *SendStickerOp
 		}
 	}
 
-	r, err := bot.Post("sendSticker", v, data)
+	r, err := bot.Request.Post("sendSticker", v, data)
 	if err != nil {
 		return nil, err
 	}
@@ -2667,7 +2668,7 @@ func (bot *Bot) SendVenue(chatId int64, latitude float64, longitude float64, tit
 		}
 	}
 
-	r, err := bot.Get("sendVenue", v)
+	r, err := bot.Request.Get("sendVenue", v)
 	if err != nil {
 		return nil, err
 	}
@@ -2713,24 +2714,24 @@ type SendVideoOpts struct {
 // https://core.telegram.org/bots/api#sendvideo
 func (bot *Bot) SendVideo(chatId int64, video InputFile, opts *SendVideoOpts) (*Message, error) {
 	v := urlLib.Values{}
-	data := map[string]NamedReader{}
+	data := map[string]request.NamedReader{}
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	if video != nil {
 		switch m := video.(type) {
 		case string:
 			v.Add("video", m)
 
-		case NamedReader:
+		case request.NamedReader:
 			v.Add("video", "attach://video")
 			data["video"] = m
 
 		case io.Reader:
 			v.Add("video", "attach://video")
-			data["video"] = NamedFile{File: m}
+			data["video"] = request.NamedFile{File: m}
 
 		case []byte:
 			v.Add("video", "attach://video")
-			data["video"] = NamedFile{File: bytes.NewReader(m)}
+			data["video"] = request.NamedFile{File: bytes.NewReader(m)}
 
 		default:
 			return nil, fmt.Errorf("unknown type for InputFile: %T", video)
@@ -2751,17 +2752,17 @@ func (bot *Bot) SendVideo(chatId int64, video InputFile, opts *SendVideoOpts) (*
 			case string:
 				v.Add("thumb", m)
 
-			case NamedReader:
+			case request.NamedReader:
 				v.Add("thumb", "attach://thumb")
 				data["thumb"] = m
 
 			case io.Reader:
 				v.Add("thumb", "attach://thumb")
-				data["thumb"] = NamedFile{File: m}
+				data["thumb"] = request.NamedFile{File: m}
 
 			case []byte:
 				v.Add("thumb", "attach://thumb")
-				data["thumb"] = NamedFile{File: bytes.NewReader(m)}
+				data["thumb"] = request.NamedFile{File: bytes.NewReader(m)}
 
 			default:
 				return nil, fmt.Errorf("unknown type for InputFile: %T", opts.Thumb)
@@ -2792,7 +2793,7 @@ func (bot *Bot) SendVideo(chatId int64, video InputFile, opts *SendVideoOpts) (*
 		}
 	}
 
-	r, err := bot.Post("sendVideo", v, data)
+	r, err := bot.Request.Post("sendVideo", v, data)
 	if err != nil {
 		return nil, err
 	}
@@ -2828,24 +2829,24 @@ type SendVideoNoteOpts struct {
 // https://core.telegram.org/bots/api#sendvideonote
 func (bot *Bot) SendVideoNote(chatId int64, videoNote InputFile, opts *SendVideoNoteOpts) (*Message, error) {
 	v := urlLib.Values{}
-	data := map[string]NamedReader{}
+	data := map[string]request.NamedReader{}
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	if videoNote != nil {
 		switch m := videoNote.(type) {
 		case string:
 			v.Add("video_note", m)
 
-		case NamedReader:
+		case request.NamedReader:
 			v.Add("video_note", "attach://video_note")
 			data["video_note"] = m
 
 		case io.Reader:
 			v.Add("video_note", "attach://video_note")
-			data["video_note"] = NamedFile{File: m}
+			data["video_note"] = request.NamedFile{File: m}
 
 		case []byte:
 			v.Add("video_note", "attach://video_note")
-			data["video_note"] = NamedFile{File: bytes.NewReader(m)}
+			data["video_note"] = request.NamedFile{File: bytes.NewReader(m)}
 
 		default:
 			return nil, fmt.Errorf("unknown type for InputFile: %T", videoNote)
@@ -2863,17 +2864,17 @@ func (bot *Bot) SendVideoNote(chatId int64, videoNote InputFile, opts *SendVideo
 			case string:
 				v.Add("thumb", m)
 
-			case NamedReader:
+			case request.NamedReader:
 				v.Add("thumb", "attach://thumb")
 				data["thumb"] = m
 
 			case io.Reader:
 				v.Add("thumb", "attach://thumb")
-				data["thumb"] = NamedFile{File: m}
+				data["thumb"] = request.NamedFile{File: m}
 
 			case []byte:
 				v.Add("thumb", "attach://thumb")
-				data["thumb"] = NamedFile{File: bytes.NewReader(m)}
+				data["thumb"] = request.NamedFile{File: bytes.NewReader(m)}
 
 			default:
 				return nil, fmt.Errorf("unknown type for InputFile: %T", opts.Thumb)
@@ -2894,7 +2895,7 @@ func (bot *Bot) SendVideoNote(chatId int64, videoNote InputFile, opts *SendVideo
 		}
 	}
 
-	r, err := bot.Post("sendVideoNote", v, data)
+	r, err := bot.Request.Post("sendVideoNote", v, data)
 	if err != nil {
 		return nil, err
 	}
@@ -2932,24 +2933,24 @@ type SendVoiceOpts struct {
 // https://core.telegram.org/bots/api#sendvoice
 func (bot *Bot) SendVoice(chatId int64, voice InputFile, opts *SendVoiceOpts) (*Message, error) {
 	v := urlLib.Values{}
-	data := map[string]NamedReader{}
+	data := map[string]request.NamedReader{}
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	if voice != nil {
 		switch m := voice.(type) {
 		case string:
 			v.Add("voice", m)
 
-		case NamedReader:
+		case request.NamedReader:
 			v.Add("voice", "attach://voice")
 			data["voice"] = m
 
 		case io.Reader:
 			v.Add("voice", "attach://voice")
-			data["voice"] = NamedFile{File: m}
+			data["voice"] = request.NamedFile{File: m}
 
 		case []byte:
 			v.Add("voice", "attach://voice")
-			data["voice"] = NamedFile{File: bytes.NewReader(m)}
+			data["voice"] = request.NamedFile{File: bytes.NewReader(m)}
 
 		default:
 			return nil, fmt.Errorf("unknown type for InputFile: %T", voice)
@@ -2983,7 +2984,7 @@ func (bot *Bot) SendVoice(chatId int64, voice InputFile, opts *SendVoiceOpts) (*
 		}
 	}
 
-	r, err := bot.Post("sendVoice", v, data)
+	r, err := bot.Request.Post("sendVoice", v, data)
 	if err != nil {
 		return nil, err
 	}
@@ -3003,7 +3004,7 @@ func (bot *Bot) SetChatAdministratorCustomTitle(chatId int64, userId int64, cust
 	v.Add("user_id", strconv.FormatInt(userId, 10))
 	v.Add("custom_title", customTitle)
 
-	r, err := bot.Get("setChatAdministratorCustomTitle", v)
+	r, err := bot.Request.Get("setChatAdministratorCustomTitle", v)
 	if err != nil {
 		return false, err
 	}
@@ -3029,7 +3030,7 @@ func (bot *Bot) SetChatDescription(chatId int64, opts *SetChatDescriptionOpts) (
 		v.Add("description", opts.Description)
 	}
 
-	r, err := bot.Get("setChatDescription", v)
+	r, err := bot.Request.Get("setChatDescription", v)
 	if err != nil {
 		return false, err
 	}
@@ -3051,7 +3052,7 @@ func (bot *Bot) SetChatPermissions(chatId int64, permissions ChatPermissions) (b
 	}
 	v.Add("permissions", string(bs))
 
-	r, err := bot.Get("setChatPermissions", v)
+	r, err := bot.Request.Get("setChatPermissions", v)
 	if err != nil {
 		return false, err
 	}
@@ -3066,28 +3067,28 @@ func (bot *Bot) SetChatPermissions(chatId int64, permissions ChatPermissions) (b
 // https://core.telegram.org/bots/api#setchatphoto
 func (bot *Bot) SetChatPhoto(chatId int64, photo InputFile) (bool, error) {
 	v := urlLib.Values{}
-	data := map[string]NamedReader{}
+	data := map[string]request.NamedReader{}
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	if photo != nil {
 		switch m := photo.(type) {
-		case NamedReader:
+		case request.NamedReader:
 			v.Add("photo", "attach://photo")
 			data["photo"] = m
 
 		case io.Reader:
 			v.Add("photo", "attach://photo")
-			data["photo"] = NamedFile{File: m}
+			data["photo"] = request.NamedFile{File: m}
 
 		case []byte:
 			v.Add("photo", "attach://photo")
-			data["photo"] = NamedFile{File: bytes.NewReader(m)}
+			data["photo"] = request.NamedFile{File: bytes.NewReader(m)}
 
 		default:
 			return false, fmt.Errorf("unknown type for InputFile: %T", photo)
 		}
 	}
 
-	r, err := bot.Post("setChatPhoto", v, data)
+	r, err := bot.Request.Post("setChatPhoto", v, data)
 	if err != nil {
 		return false, err
 	}
@@ -3105,7 +3106,7 @@ func (bot *Bot) SetChatStickerSet(chatId int64, stickerSetName string) (bool, er
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	v.Add("sticker_set_name", stickerSetName)
 
-	r, err := bot.Get("setChatStickerSet", v)
+	r, err := bot.Request.Get("setChatStickerSet", v)
 	if err != nil {
 		return false, err
 	}
@@ -3123,7 +3124,7 @@ func (bot *Bot) SetChatTitle(chatId int64, title string) (bool, error) {
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	v.Add("title", title)
 
-	r, err := bot.Get("setChatTitle", v)
+	r, err := bot.Request.Get("setChatTitle", v)
 	if err != nil {
 		return false, err
 	}
@@ -3167,7 +3168,7 @@ func (bot *Bot) SetGameScore(userId int64, score int64, opts *SetGameScoreOpts) 
 		v.Add("inline_message_id", opts.InlineMessageId)
 	}
 
-	r, err := bot.Get("setGameScore", v)
+	r, err := bot.Request.Get("setGameScore", v)
 	if err != nil {
 		return nil, false, err
 	}
@@ -3214,7 +3215,7 @@ func (bot *Bot) SetMyCommands(commands []BotCommand, opts *SetMyCommandsOpts) (b
 		v.Add("language_code", opts.LanguageCode)
 	}
 
-	r, err := bot.Get("setMyCommands", v)
+	r, err := bot.Request.Get("setMyCommands", v)
 	if err != nil {
 		return false, err
 	}
@@ -3239,7 +3240,7 @@ func (bot *Bot) SetPassportDataErrors(userId int64, errors []PassportElementErro
 		v.Add("errors", string(bs))
 	}
 
-	r, err := bot.Get("setPassportDataErrors", v)
+	r, err := bot.Request.Get("setPassportDataErrors", v)
 	if err != nil {
 		return false, err
 	}
@@ -3257,7 +3258,7 @@ func (bot *Bot) SetStickerPositionInSet(sticker string, position int64) (bool, e
 	v.Add("sticker", sticker)
 	v.Add("position", strconv.FormatInt(position, 10))
 
-	r, err := bot.Get("setStickerPositionInSet", v)
+	r, err := bot.Request.Get("setStickerPositionInSet", v)
 	if err != nil {
 		return false, err
 	}
@@ -3279,7 +3280,7 @@ type SetStickerSetThumbOpts struct {
 // https://core.telegram.org/bots/api#setstickersetthumb
 func (bot *Bot) SetStickerSetThumb(name string, userId int64, opts *SetStickerSetThumbOpts) (bool, error) {
 	v := urlLib.Values{}
-	data := map[string]NamedReader{}
+	data := map[string]request.NamedReader{}
 	v.Add("name", name)
 	v.Add("user_id", strconv.FormatInt(userId, 10))
 	if opts != nil {
@@ -3288,17 +3289,17 @@ func (bot *Bot) SetStickerSetThumb(name string, userId int64, opts *SetStickerSe
 			case string:
 				v.Add("thumb", m)
 
-			case NamedReader:
+			case request.NamedReader:
 				v.Add("thumb", "attach://thumb")
 				data["thumb"] = m
 
 			case io.Reader:
 				v.Add("thumb", "attach://thumb")
-				data["thumb"] = NamedFile{File: m}
+				data["thumb"] = request.NamedFile{File: m}
 
 			case []byte:
 				v.Add("thumb", "attach://thumb")
-				data["thumb"] = NamedFile{File: bytes.NewReader(m)}
+				data["thumb"] = request.NamedFile{File: bytes.NewReader(m)}
 
 			default:
 				return false, fmt.Errorf("unknown type for InputFile: %T", opts.Thumb)
@@ -3306,7 +3307,7 @@ func (bot *Bot) SetStickerSetThumb(name string, userId int64, opts *SetStickerSe
 		}
 	}
 
-	r, err := bot.Post("setStickerSetThumb", v, data)
+	r, err := bot.Request.Post("setStickerSetThumb", v, data)
 	if err != nil {
 		return false, err
 	}
@@ -3336,22 +3337,22 @@ type SetWebhookOpts struct {
 // https://core.telegram.org/bots/api#setwebhook
 func (bot *Bot) SetWebhook(url string, opts *SetWebhookOpts) (bool, error) {
 	v := urlLib.Values{}
-	data := map[string]NamedReader{}
+	data := map[string]request.NamedReader{}
 	v.Add("url", url)
 	if opts != nil {
 		if opts.Certificate != nil {
 			switch m := opts.Certificate.(type) {
-			case NamedReader:
+			case request.NamedReader:
 				v.Add("certificate", "attach://certificate")
 				data["certificate"] = m
 
 			case io.Reader:
 				v.Add("certificate", "attach://certificate")
-				data["certificate"] = NamedFile{File: m}
+				data["certificate"] = request.NamedFile{File: m}
 
 			case []byte:
 				v.Add("certificate", "attach://certificate")
-				data["certificate"] = NamedFile{File: bytes.NewReader(m)}
+				data["certificate"] = request.NamedFile{File: bytes.NewReader(m)}
 
 			default:
 				return false, fmt.Errorf("unknown type for InputFile: %T", opts.Certificate)
@@ -3371,7 +3372,7 @@ func (bot *Bot) SetWebhook(url string, opts *SetWebhookOpts) (bool, error) {
 		v.Add("drop_pending_updates", strconv.FormatBool(opts.DropPendingUpdates))
 	}
 
-	r, err := bot.Post("setWebhook", v, data)
+	r, err := bot.Request.Post("setWebhook", v, data)
 	if err != nil {
 		return false, err
 	}
@@ -3412,7 +3413,7 @@ func (bot *Bot) StopMessageLiveLocation(opts *StopMessageLiveLocationOpts) (*Mes
 		v.Add("reply_markup", string(bs))
 	}
 
-	r, err := bot.Get("stopMessageLiveLocation", v)
+	r, err := bot.Request.Get("stopMessageLiveLocation", v)
 	if err != nil {
 		return nil, false, err
 	}
@@ -3452,7 +3453,7 @@ func (bot *Bot) StopPoll(chatId int64, messageId int64, opts *StopPollOpts) (*Po
 		v.Add("reply_markup", string(bs))
 	}
 
-	r, err := bot.Get("stopPoll", v)
+	r, err := bot.Request.Get("stopPoll", v)
 	if err != nil {
 		return nil, err
 	}
@@ -3480,7 +3481,7 @@ func (bot *Bot) UnbanChatMember(chatId int64, userId int64, opts *UnbanChatMembe
 		v.Add("only_if_banned", strconv.FormatBool(opts.OnlyIfBanned))
 	}
 
-	r, err := bot.Get("unbanChatMember", v)
+	r, err := bot.Request.Get("unbanChatMember", v)
 	if err != nil {
 		return false, err
 	}
@@ -3498,7 +3499,7 @@ func (bot *Bot) UnbanChatSenderChat(chatId int64, senderChatId int64) (bool, err
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 	v.Add("sender_chat_id", strconv.FormatInt(senderChatId, 10))
 
-	r, err := bot.Get("unbanChatSenderChat", v)
+	r, err := bot.Request.Get("unbanChatSenderChat", v)
 	if err != nil {
 		return false, err
 	}
@@ -3514,7 +3515,7 @@ func (bot *Bot) UnpinAllChatMessages(chatId int64) (bool, error) {
 	v := urlLib.Values{}
 	v.Add("chat_id", strconv.FormatInt(chatId, 10))
 
-	r, err := bot.Get("unpinAllChatMessages", v)
+	r, err := bot.Request.Get("unpinAllChatMessages", v)
 	if err != nil {
 		return false, err
 	}
@@ -3542,7 +3543,7 @@ func (bot *Bot) UnpinChatMessage(chatId int64, opts *UnpinChatMessageOpts) (bool
 		}
 	}
 
-	r, err := bot.Get("unpinChatMessage", v)
+	r, err := bot.Request.Get("unpinChatMessage", v)
 	if err != nil {
 		return false, err
 	}
@@ -3557,28 +3558,28 @@ func (bot *Bot) UnpinChatMessage(chatId int64, opts *UnpinChatMessageOpts) (bool
 // https://core.telegram.org/bots/api#uploadstickerfile
 func (bot *Bot) UploadStickerFile(userId int64, pngSticker InputFile) (*File, error) {
 	v := urlLib.Values{}
-	data := map[string]NamedReader{}
+	data := map[string]request.NamedReader{}
 	v.Add("user_id", strconv.FormatInt(userId, 10))
 	if pngSticker != nil {
 		switch m := pngSticker.(type) {
-		case NamedReader:
+		case request.NamedReader:
 			v.Add("png_sticker", "attach://png_sticker")
 			data["png_sticker"] = m
 
 		case io.Reader:
 			v.Add("png_sticker", "attach://png_sticker")
-			data["png_sticker"] = NamedFile{File: m}
+			data["png_sticker"] = request.NamedFile{File: m}
 
 		case []byte:
 			v.Add("png_sticker", "attach://png_sticker")
-			data["png_sticker"] = NamedFile{File: bytes.NewReader(m)}
+			data["png_sticker"] = request.NamedFile{File: bytes.NewReader(m)}
 
 		default:
 			return nil, fmt.Errorf("unknown type for InputFile: %T", pngSticker)
 		}
 	}
 
-	r, err := bot.Post("uploadStickerFile", v, data)
+	r, err := bot.Request.Post("uploadStickerFile", v, data)
 	if err != nil {
 		return nil, err
 	}

@@ -3,7 +3,7 @@ package ext
 import (
 	"strings"
 
-	"github.com/PaulSonOfLars/gotgbot/v2"
+	"github.com/anonyindian/gotgbot/v2"
 )
 
 // TODO: extend to be used as a generic cancel context?

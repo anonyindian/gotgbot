@@ -3,9 +3,9 @@ package handlers
 import (
 	"fmt"
 
-	"github.com/PaulSonOfLars/gotgbot/v2"
-	"github.com/PaulSonOfLars/gotgbot/v2/ext"
-	"github.com/PaulSonOfLars/gotgbot/v2/ext/handlers/filters"
+	"github.com/anonyindian/gotgbot/v2"
+	"github.com/anonyindian/gotgbot/v2/ext"
+	"github.com/anonyindian/gotgbot/v2/ext/handlers/filters"
 )
 
 type PollAnswer struct {

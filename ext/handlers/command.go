@@ -4,8 +4,8 @@ import (
 	"strings"
 	"unicode/utf8"
 
-	"github.com/PaulSonOfLars/gotgbot/v2"
-	"github.com/PaulSonOfLars/gotgbot/v2/ext"
+	"github.com/anonyindian/gotgbot/v2"
+	"github.com/anonyindian/gotgbot/v2/ext"
 )
 
 type Command struct {

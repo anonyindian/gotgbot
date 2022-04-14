@@ -7,6 +7,8 @@ import (
 	"encoding/json"
 	"fmt"
 	"io"
+
+	"github.com/anonyindian/gotgbot/v2/request"
 )
 
 type ReplyMarkup interface {
@@ -2871,7 +2873,7 @@ type InputMedia interface {
 	GetMedia() InputFile
 	inputMedia()
 	// InputMediaParams allows for uploading InputMedia files with attachments.
-	InputMediaParams(string, map[string]NamedReader) ([]byte, error)
+	InputMediaParams(string, map[string]request.NamedReader) ([]byte, error)
 	// MergeInputMedia returns a MergedInputMedia struct to simplify working with complex telegram types in a non-generic world.
 	MergeInputMedia() MergedInputMedia
 }
@@ -2945,19 +2947,19 @@ type InputMediaAnimation struct {
 	Duration int64 `json:"duration,omitempty"`
 }
 
-func (v InputMediaAnimation) InputMediaParams(mediaName string, data map[string]NamedReader) ([]byte, error) {
+func (v InputMediaAnimation) InputMediaParams(mediaName string, data map[string]request.NamedReader) ([]byte, error) {
 	if v.Media != nil {
 		switch m := v.Media.(type) {
 		case string:
 			// ok, noop
 
-		case NamedReader:
+		case request.NamedReader:
 			v.Media = "attach://" + mediaName
 			data[mediaName] = m
 
 		case io.Reader:
 			v.Media = "attach://" + mediaName
-			data[mediaName] = NamedFile{File: m}
+			data[mediaName] = request.NamedFile{File: m}
 
 		default:
 			return nil, fmt.Errorf("unknown type for InputMedia: %T", v.Media)
@@ -3029,19 +3031,19 @@ type InputMediaAudio struct {
 	Title string `json:"title,omitempty"`
 }
 
-func (v InputMediaAudio) InputMediaParams(mediaName string, data map[string]NamedReader) ([]byte, error) {
+func (v InputMediaAudio) InputMediaParams(mediaName string, data map[string]request.NamedReader) ([]byte, error) {
 	if v.Media != nil {
 		switch m := v.Media.(type) {
 		case string:
 			// ok, noop
 
-		case NamedReader:
+		case request.NamedReader:
 			v.Media = "attach://" + mediaName
 			data[mediaName] = m
 
 		case io.Reader:
 			v.Media = "attach://" + mediaName
-			data[mediaName] = NamedFile{File: m}
+			data[mediaName] = request.NamedFile{File: m}
 
 		default:
 			return nil, fmt.Errorf("unknown type for InputMedia: %T", v.Media)
@@ -3109,19 +3111,19 @@ type InputMediaDocument struct {
 	DisableContentTypeDetection bool `json:"disable_content_type_detection,omitempty"`
 }
 
-func (v InputMediaDocument) InputMediaParams(mediaName string, data map[string]NamedReader) ([]byte, error) {
+func (v InputMediaDocument) InputMediaParams(mediaName string, data map[string]request.NamedReader) ([]byte, error) {
 	if v.Media != nil {
 		switch m := v.Media.(type) {
 		case string:
 			// ok, noop
 
-		case NamedReader:
+		case request.NamedReader:
 			v.Media = "attach://" + mediaName
 			data[mediaName] = m
 
 		case io.Reader:
 			v.Media = "attach://" + mediaName
-			data[mediaName] = NamedFile{File: m}
+			data[mediaName] = request.NamedFile{File: m}
 
 		default:
 			return nil, fmt.Errorf("unknown type for InputMedia: %T", v.Media)
@@ -3183,19 +3185,19 @@ type InputMediaPhoto struct {
 	CaptionEntities []MessageEntity `json:"caption_entities,omitempty"`
 }
 
-func (v InputMediaPhoto) InputMediaParams(mediaName string, data map[string]NamedReader) ([]byte, error) {
+func (v InputMediaPhoto) InputMediaParams(mediaName string, data map[string]request.NamedReader) ([]byte, error) {
 	if v.Media != nil {
 		switch m := v.Media.(type) {
 		case string:
 			// ok, noop
 
-		case NamedReader:
+		case request.NamedReader:
 			v.Media = "attach://" + mediaName
 			data[mediaName] = m
 
 		case io.Reader:
 			v.Media = "attach://" + mediaName
-			data[mediaName] = NamedFile{File: m}
+			data[mediaName] = request.NamedFile{File: m}
 
 		default:
 			return nil, fmt.Errorf("unknown type for InputMedia: %T", v.Media)
@@ -3265,19 +3267,19 @@ type InputMediaVideo struct {
 	SupportsStreaming bool `json:"supports_streaming,omitempty"`
 }
 
-func (v InputMediaVideo) InputMediaParams(mediaName string, data map[string]NamedReader) ([]byte, error) {
+func (v InputMediaVideo) InputMediaParams(mediaName string, data map[string]request.NamedReader) ([]byte, error) {
 	if v.Media != nil {
 		switch m := v.Media.(type) {
 		case string:
 			// ok, noop
 
-		case NamedReader:
+		case request.NamedReader:
 			v.Media = "attach://" + mediaName
 			data[mediaName] = m
 
 		case io.Reader:
 			v.Media = "attach://" + mediaName
-			data[mediaName] = NamedFile{File: m}
+			data[mediaName] = request.NamedFile{File: m}
 
 		default:
 			return nil, fmt.Errorf("unknown type for InputMedia: %T", v.Media)
